@@ -1,0 +1,799 @@
+<template>
+  <div>
+    <!-- 面包屑导航 -->
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>老人信息管理</el-breadcrumb-item>
+    </el-breadcrumb>
+    <!-- <p>hello</p> -->
+    <!-- 表单之上 -->
+    <div>
+      <el-row style="margin-top:1%">
+        <!-- 搜索表单 -->
+        <el-col :span="6">
+          <el-form
+            :inline="true"
+            :model="searchForm"
+            :rules="searchRules"
+            ref="searchFormRef"
+            label-width="80px"
+            class="demo-ruleForm"
+            hide-required-asterisk
+          >
+            <!--搜索框  -->
+            <el-form-item label="姓名" prop="name" style="margin:0px">
+              <el-input v-model="searchForm.name" size="small"></el-input>
+            </el-form-item>
+
+            <!-- 搜索点击按钮 -->
+            <el-form-item style="margin-left:10px">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="搜索"
+                placement="top"
+              >
+                <el-button
+                  class="el-icon-search"
+                  type="primary"
+                  circle
+                  @click="Search()"
+                  :loading="searchload"
+                ></el-button>
+              </el-tooltip>
+            </el-form-item>
+          </el-form>
+        </el-col>
+
+        <!-- 按钮组 -->
+
+        <!-- 上传 按钮 -->
+        <!-- <el-col :offset="7" :xs="1" :sm="1" :md="1" :lg="1" :xl="1">
+          <el-tooltip class="item" effect="dark" content="上传" placement="top"> -->
+        <!-- :on-remove="handleRemove"
+              :file-list="fileListUpload"
+              :on-exceed="handleExceed"-->
+        <!-- <el-upload
+              class="upload-demo"
+              action
+              :on-change="handleChange"
+              :limit="limitUpload"
+              accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              :auto-upload="false"
+              ref="uploadRef"
+            >
+              <el-button
+                class="el-icon-upload2"
+                circle
+                type="primary"
+              ></el-button>
+            </el-upload>
+          </el-tooltip>
+        </el-col> -->
+
+        <!-- 下载 按钮 -->
+        <!-- <el-col :xs="1" :sm="1" :md="1" :lg="1" :xl="1">
+          <el-tooltip class="item" effect="dark" content="下载" placement="top">
+            <el-popconfirm
+              title="点击确认按钮导出数据"
+              @onConfirm="Download"
+              @onCancel="DownloadCancel"
+              confirmButtonText="确认"
+              cancelButtonText="取消"
+              icon="el-icon-info"
+              iconColor="green"
+            >
+              <el-button
+                class="el-icon-download"
+                circle
+                type="primary"
+                slot="reference"
+              ></el-button>
+            </el-popconfirm>
+          </el-tooltip>
+        </el-col> -->
+        <!-- 添加老人 按钮 -->
+        <el-col :span="1" :offset="17">
+          <el-tooltip class="item" effect="dark" content="添加" placement="top">
+            <el-button
+              class="el-icon-plus"
+              circle
+              type="primary"
+              @click="Add()"
+            ></el-button>
+          </el-tooltip>
+        </el-col>
+
+        <!-- 删除部门 按钮 -->
+        <!-- <el-col :span="1">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="删除部门"
+            placement="top"
+          >
+            <el-button
+              class="el-icon-minus"
+              circle
+              type="primary"
+              @click="Minus()"
+            ></el-button>
+          </el-tooltip>
+        </el-col> -->
+
+        <!-- 修改部门 按钮
+          <el-col :xs="1" :sm="1" :md="1" :lg="1" :xl="1">
+            <el-tooltip class="item" effect="dark" content="修改部门" placement="top">
+              <el-button class="el-icon-edit" circle type="primary" @click="Edit()"></el-button>
+            </el-tooltip>
+          </el-col>-->
+
+        <!-- 打印部门 按钮 -->
+        <!-- <el-col :xs="1" :sm="1" :md="1" :lg="1" :xl="1">
+            <el-tooltip class="item" effect="dark" content="打印部门信息" placement="top">
+              <el-button class="el-icon-printer" circle type="primary" @click="Printer()"></el-button>
+            </el-tooltip>
+          </el-col> -->
+      </el-row>
+    </div>
+
+    <div>
+      <!--表格块  -->
+      <div>
+        <el-table
+          :data="tableData"
+          stripe
+          border
+          style="width: 100%;"
+          max-height="350"
+          v-loading="tableload"
+          element-loading-text="拼命加载中"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.8)"
+          ref="tableRef"
+        >
+          <!-- 表头 -->
+          <!-- <el-table-column type="selection" width="55" align="center"></el-table-column> -->
+          <el-table-column
+            prop="id"
+            label="编号"
+            width="100"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="name"
+            label="姓名"
+            width="150"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="sex"
+            label="性别"
+            align="center"
+            width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="birtyday"
+            label="出生年月"
+            align="center"
+            width="150"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="address"
+            label="地址"
+            align="center"
+            width="200"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="idcardno"
+            label="身份证号"
+            align="center"
+            width="200"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="mobile"
+            label="联系电话"
+            align="center"
+            width="150"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="butie"
+            label="养老补贴"
+            align="center"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="jiguan"
+            label="籍贯"
+            align="center"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="mianmao"
+            label="面貌"
+            align="center"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="ssperiod"
+            label="社保年限"
+            align="center"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
+            prop="yue"
+            label="余额"
+            align="center"
+            v-show="false"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <!-- <el-table-column
+            prop="plan"
+            label="公寓安排"
+            align="center"
+            :show-overflow-tooltip="true"
+          ></el-table-column> -->
+          <el-table-column
+            fixed="right"
+            label="操作"
+            width="100"
+            align="center"
+          >
+            <!-- <template slot-scope="scope"> -->
+            <template slot-scope="scope">
+              <el-button
+                @click="Edit(scope.row)"
+                type="text"
+                size="small"
+                style="height:10px;padding-right:3px"
+                >编辑</el-button
+              >
+              <el-popconfirm
+                title="删除后不可恢复,确认要删除此条数据吗？"
+                @confirm="MinusConfirm(scope.row)"
+                @cancel="MinusCancel()"
+                confirmButtonText="确认"
+                cancelButtonText="取消"
+                icon="el-icon-info"
+                iconColor="red"
+              >
+                <el-button
+                  type="text"
+                  size="small"
+                  style="height:10px"
+                  slot="reference"
+                  >删除</el-button
+                >
+              </el-popconfirm>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 信息分页 -->
+        <div class="box_bottom">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="page.current"
+            :page-sizes="[7, 10, 15, 20]"
+            :page-size="page.size"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加 按钮 dialog -->
+    <el-dialog
+      title="添加"
+      :visible.sync="dialogVisibleAdd"
+      width="40%"
+      :before-close="handleCloseAdd"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form
+        :model="addForm"
+        :rules="addRules"
+        ref="addFormRef"
+        label-width="80px"
+        class="demo-ruleForm"
+        hide-required-asterisk
+        size="mini"
+        :inline="true"
+      >
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="addForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="身份证号" prop="idcardno">
+          <el-input v-model="addForm.idcardno"></el-input>
+        </el-form-item>
+        <el-form-item label="性别" prop="sex">
+          <el-select v-model="addForm.sex">
+            <el-option label="男" value="男"></el-option>
+            <el-option
+              label="女"
+              value="女"
+              style="margin-bottom:10px"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="出生年月" prop="birtyday">
+          <el-date-picker
+            type="date"
+            placeholder="选择日期"
+            v-model="addForm.birtyday"
+            style="width: 251px;"
+            value-format="yyyy-MM-dd"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="addForm.address"> </el-input>
+        </el-form-item>
+        <el-form-item label="联系电话" prop="mobile">
+          <el-input v-model="addForm.mobile"> </el-input>
+        </el-form-item>
+        <el-form-item label="养老补贴" prop="butie">
+          <el-input v-model="addForm.butie"></el-input>
+        </el-form-item>
+        <el-form-item label="职业" prop="zhiye">
+          <el-input v-model="addForm.zhiye"></el-input>
+        </el-form-item>
+        <el-form-item label="籍贯" prop="jiguan">
+          <el-input v-model="addForm.jiguan"></el-input>
+        </el-form-item>
+        <el-form-item label="面貌" prop="mianmao">
+          <el-input v-model="addForm.mianmao"></el-input>
+        </el-form-item>
+        <el-form-item label="社保年限" prop="ssperiod">
+          <el-input v-model="addForm.ssperiod"></el-input>
+        </el-form-item>
+        <el-form-item label="说明" prop="des">
+          <el-input v-model="addForm.des"></el-input>
+        </el-form-item>
+        <el-form-item label="余额" prop="yue">
+          <el-input v-model="addForm.yue"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="AddCancel()">取 消</el-button>
+        <el-button type="primary" @click="AddConfirm()">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!--编辑 按钮 dialog  -->
+    <el-dialog
+      title="编辑"
+      :visible.sync="dialogVisibleEdit"
+      width="40%"
+      :inline="true"
+      :before-close="handleCloseEdit"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form
+        :model="editForm"
+        :rules="editRules"
+        ref="editFormRef"
+        label-width="80px"
+        class="demo-ruleForm"
+        hide-required-asterisk
+        size="mini"
+        :inline="true"
+      >
+        <el-form-item label="编号" prop="id">
+          <el-input
+            v-model="editForm.id"
+            disabled
+            style="width:251px"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="editForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="身份证号" prop="idcardno">
+          <el-input v-model="editForm.idcardno"></el-input>
+        </el-form-item>
+        <el-form-item label="性别" prop="sex">
+          <el-select v-model="editForm.sex">
+            <el-option label="男" value="男"></el-option>
+            <el-option
+              label="女"
+              value="女"
+              style="margin-bottom:10px"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="出生年月" prop="birtyday">
+          <el-date-picker
+            type="date"
+            placeholder="选择日期"
+            v-model="editForm.birtyday"
+            style="width: 251px;"
+            value-format="yyyy-MM-dd"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="editForm.address"> </el-input>
+        </el-form-item>
+        <el-form-item label="联系电话" prop="mobile">
+          <el-input v-model="editForm.mobile"> </el-input>
+        </el-form-item>
+        <el-form-item label="养老补贴" prop="butie">
+          <el-input v-model="editForm.butie"></el-input>
+        </el-form-item>
+        <el-form-item label="职业" prop="zhiye">
+          <el-input v-model="editForm.zhiye"></el-input>
+        </el-form-item>
+        <el-form-item label="籍贯" prop="jiguan">
+          <el-input v-model="editForm.jiguan"></el-input>
+        </el-form-item>
+        <el-form-item label="面貌" prop="mianmao">
+          <el-input v-model="editForm.mianmao"></el-input>
+        </el-form-item>
+        <el-form-item label="社保年限" prop="ssperiod">
+          <el-input v-model="editForm.ssperiod"></el-input>
+        </el-form-item>
+        <el-form-item label="说明" prop="des">
+          <el-input v-model="editForm.des"></el-input>
+        </el-form-item>
+        <el-form-item label="余额" prop="yue">
+          <el-input v-model="editForm.yue"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="EditCancel()">取 消</el-button>
+        <el-button type="primary" @click="EditConfirm()">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+<script>
+import { searchrule, addrule, editrule } from "./rule";
+export default {
+  data() {
+    return {
+      // 搜索表单
+      searchForm: {
+        name: "",
+      },
+      // 搜索规则
+      searchRules: {},
+      // 搜索按钮加载
+      searchload: false,
+
+      // 表格数据
+      tableData: [],
+      // 分页
+      page: {
+        current: 1, //当前页
+        size: 10, //每页显示条目数
+      },
+      //数据总数
+      total: 0,
+      tableload: false, //表格加载 判断
+      //flag，判断搜索还是加载整个表格
+      flag: false,
+      // 表格加载判断
+      tableload: false,
+
+      // dialog显示判断
+
+      // 添加dialog 判断
+      dialogVisibleAdd: false,
+      // 添加表单
+      addForm: {
+        address: "",
+        birtyday: "",
+        butie: "",
+        des: "",
+        idcardno: "",
+        jiguan: "",
+        mianmao: "",
+        mobile: "",
+        name: "",
+        sex: "",
+        ssperiod: "",
+        zhiye: "",
+        yue: "",
+        // plan: 101,
+      },
+      // 添加表单规则
+      addRules: addrule,
+
+      // 编辑 dialog 判断
+      dialogVisibleEdit: false,
+      // 添加表单
+      editForm: {},
+      // 添加表单规则
+      editRules: {},
+
+      // 公寓楼
+      apart: [],
+      // 公寓安排
+      // block: [],
+    };
+  },
+  mounted() {
+    this.UrlTableData();
+    // this.getApart();
+  },
+  computed: {},
+  methods: {
+    // 点击搜索按钮
+    Search() {
+      // 校验name是否符合规则
+      this.$refs.searchFormRef.validate(async (valid) => {
+        if (!valid) {
+          return;
+        }
+        this.searchload = true;
+        this.flag = true;
+        this.getTableData();
+      });
+    },
+    //根据姓名搜索
+    async UrlSearch() {
+      let that = this;
+      const url = that.APIurl.API.api.admin.basic.laoren.search;
+      await that.$http
+        .get(url + that.searchForm.name, {
+          params: that.page,
+        })
+        .then(function(response) {
+          // console.log(response);
+          // 获取数据
+          that.tableData = response.data.data;
+          that.total = response.data.total;
+          that.$message.success("搜索成功");
+          that.flag = false;
+        })
+        .catch(function(error) {
+          //请求失败处理
+          that.$message.error("搜索失败");
+        });
+      // 定时器，清楚输入框内容
+      setTimeout(() => {
+        this.searchload = false;
+        // this.$refs.searchFormRef.clearValidate();
+      }, 3000);
+    },
+
+    // 点击添加按钮
+    Add() {
+      this.dialogVisibleAdd = true;
+    },
+
+    // 点击编辑按钮
+    Edit(row) {
+      this.dialogVisibleEdit = true;
+      this.editForm = row;
+    },
+
+    // 点击删除 确认按钮
+    async MinusConfirm(row) {
+      // console.log(row);
+      let that = this;
+      const url = that.APIurl.API.api.admin.basic.laoren.delete;
+      await that.$http
+        .delete(url + row.id)
+        .then(function(response) {
+          that.$message.success("删除编号为" + row.id + "的数据");
+          that.getTableData();
+        })
+        .catch(function(error) {
+          //请求失败处理
+          that.$message.error("删除失败");
+        });
+    },
+    // 点击删除 取消按钮
+    MinusCancel() {
+      this.$message("已取消删除");
+    },
+
+    // 访问后端获取表格数据
+    async UrlTableData() {
+      let that = this;
+      const url = that.APIurl.API.api.admin.basic.laoren.get;
+      await that.$http
+        .get(url, {
+          params: that.page,
+        })
+        .then(function(response) {
+          // console.log(response.data.data.rows);
+          that.tableData = response.data.data;
+          that.total = response.data.total;
+        })
+        .catch(function(error) {
+          //请求失败处理
+          console.log(error);
+        });
+    },
+    // 访问后端获取表格数据
+    getTableData() {
+      // 表格加载 访问后台获取数据
+      this.tableload = true; // this.UrlTableData();
+      if (this.flag) {
+        // flag=true时，调用Search方法
+        this.UrlSearch();
+      } else {
+        // flag=false时，调用获取全部数据方法
+        this.UrlTableData();
+      } //将data数据赋值表格数组
+      this.tableload = false;
+    },
+    //监听页码值改变的事件
+    handleSizeChange(newSize) {
+      this.page.size = newSize;
+      this.getTableData();
+    },
+    // //监听页码值改变的事件
+    handleCurrentChange(newPage) {
+      this.page.current = newPage;
+      this.getTableData();
+    },
+
+    //dialog
+
+    // 添加 dialog
+
+    // dialog关闭前回调函数
+    handleCloseAdd() {
+      this.$refs.addFormRef.resetFields();
+      this.dialogVisibleAdd = false;
+      this.$message("停留在当前页面");
+    },
+    // 添加取消
+    AddCancel() {
+      this.$refs.addFormRef.resetFields();
+      this.dialogVisibleAdd = false;
+      this.$message("已取消输入");
+    },
+    // 添加确认 点击
+    AddConfirm() {
+      // 校验addForm是否符合规则
+      let that = this;
+      that.$refs.addFormRef.validate(async (valid) => {
+        if (!valid) {
+          return;
+        }
+        that.UrlAdd();
+        // 访问后台更新数据
+        that.getTableData();
+      });
+    },
+    // 添加
+    async UrlAdd() {
+      let that = this;
+      const url = that.APIurl.API.api.admin.basic.laoren.post;
+      await that.$http
+        .post(url, this.addForm)
+        .then(function(response) {
+          that.$message.success("添加成功");
+          that.dialogVisibleAdd = false;
+          that.$refs.addFormRef.resetFields();
+          that.getTableData();
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          that.$message.error("添加失败");
+        });
+    },
+
+    // 编辑 dialog
+
+    // dialog关闭前回调函数
+    handleCloseEdit() {
+      // this.$refs.editFormRef.resetFields();
+      this.dialogVisibleEdit = false;
+      this.$message("停留在当前页面");
+    },
+    // 编辑取消
+    EditCancel() {
+      // this.$refs.editFormRef.resetFields();
+      this.dialogVisibleEdit = false;
+      this.$message("已取消输入");
+    },
+    // 编辑确认 点击
+    EditConfirm() {
+      // 校验addForm是否符合规则
+      let that = this;
+      that.$refs.editFormRef.validate(async (valid) => {
+        if (!valid) {
+          return;
+        }
+        that.UrlEdit();
+        // 访问后台更新数据
+        that.getTableData();
+      });
+    },
+    // 编辑
+    async UrlEdit() {
+      let that = this;
+      const url = that.APIurl.API.api.admin.basic.laoren.put;
+      await that.$http
+        .put(url, this.editForm)
+        .then(function(response) {
+          that.$message.success("编辑成功");
+          // that.$refs.editFormRef.resetFields();
+          that.dialogVisibleEdit = false;
+          that.getTableData();
+        })
+        .catch(function(error) {
+          //请求失败处理
+          that.$message.error("编辑失败");
+        });
+    },
+
+    // 获取公寓楼信息
+    // async getApart() {
+    //   let that = this;
+    //   const url = that.APIurl.API.api.admin.basic.laoren.apart; //获取 公寓楼列表Url
+    //   // console.log(url);
+    //   await that.$http
+    //     .get(url)
+    //     .then(function(response) {
+    //       if (response.data.code == 200) {
+    //         // console.log(response);
+    //         that.apart = response.data.data.rows;
+    //         that.$message.success("获取公寓楼信息成功");
+    //       }
+    //     })
+    //     .catch(function(error) {
+    //       //请求失败处理
+    //       that.$message.error("获取公寓楼信息失败");
+    //     });
+    // },
+
+    // 获取公寓安排
+    // remoteMethod(query) {
+    //   if (query !== "") {
+    //     this.getBlock(query);
+    //   }
+    // },
+
+    // async getBlock() {
+    //   let that = this;
+    //   const url = that.APIurl.API.api.admin.basic.laoren.block; //获取 公寓安排Url
+    //   await that.$http
+    //     .get(url)
+    //     .then(function(response) {
+    //       // console.log(response);
+    //       // 获取数据
+    //       that.tableData = response.data;
+    //       that.total = response.total;
+    //       that.apart = response.data;
+    //       that.$message.success("获取公寓安排信息成功");
+    //     })
+    //     .catch(function(error) {
+    //       //请求失败处理
+    //       that.$message.error("获取公寓楼安排失败");
+    //     });
+    // },
+  },
+};
+</script>
+<style>
+.el-table__header tr,
+.el-table__header th {
+  padding: 0;
+  height: 40px !important;
+}
+.el-table__body tr,
+.el-table__body td {
+  padding: 0;
+  height: 40px !important;
+}
+.box_bottom {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+</style>
