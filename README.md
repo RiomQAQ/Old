@@ -23,4 +23,4 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-###毕业设计，赶时间写的，有很多可以修改的地方
+###毕业设计，赶时间写的，写得不好，有很多可以修改的地方
